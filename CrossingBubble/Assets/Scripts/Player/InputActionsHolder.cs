@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "InputActionsHolder", menuName = "Confi/InputActionsHolder")]
@@ -11,8 +9,8 @@ public class InputActionsHolder : ScriptableObject
     {
         if(_GameInputActions == null)
         {
-            return;
+            _GameInputActions = new GameInputActions();
+            _GameInputActions.Player.Enable();
         }
-        _GameInputActions = new GameInputActions();
     }
 }
