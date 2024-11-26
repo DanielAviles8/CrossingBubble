@@ -14,6 +14,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float dashCooldown = 1f;
     [SerializeField] private float climbSpeed = 5f; 
     [SerializeField] private float wallDetectionDistance = 0.5f; 
+    [SerializeField] private float grappleRange = 10f; 
+    [SerializeField] private float grappleSpeed = 10f;
+    [SerializeField] private LineRenderer grappleLine; // Referencia al LineRenderer
+    [SerializeField] private Material grappleMaterial; // Material del grapple
+    [SerializeField] private float grappleLineWidth = 0.1f; // Ancho de la línea
+
 
     private GameInputActions _inputActions;
     private CharacterController _characterController;
@@ -29,23 +35,43 @@ public class PlayerController : MonoBehaviour
     private float cooldownTimeRemaining = 0f;
 
     [SerializeField] private LayerMask wallLayer;
+    [SerializeField] private LayerMask anchorPointLayer; 
+
+
+    private CharacterController controller;
+    private Vector3 grappleTarget;
+    private bool isGrappling = false;
+    private Transform lastAnchorPoint;
+    private float grappleTimeRemaining; // Tiempo restante para el grapple
+    [SerializeField] private float grappleMaxDuration = 2f; // Duración máxima del grapple
+
 
     private void OnDestroy()
     {
         _inputActions.Player.Jump.performed -= JumpPlayer;
         _inputActions.Player.Dash.performed -= DashPlayer;
         _inputActions.Player.GrabWall.performed -= GrabWall;
+        _inputActions.Player.Grapple.performed -= TryGrapple;
     }
 
     void Start()
     {
         Prepare();
+        // Configurar el LineRenderer si no se ha hecho manualmente
+        if (grappleLine == null)
+        {
+            GameObject lineObject = new GameObject("GrappleLine");
+            grappleLine = lineObject.AddComponent<LineRenderer>();
+            grappleLine.material = grappleMaterial; // Asignar material
+            grappleLine.startWidth = grappleLineWidth;
+            grappleLine.endWidth = grappleLineWidth;
+            grappleLine.positionCount = 2; // La línea tendrá dos puntos
+            grappleLine.enabled = false;  // Inicialmente deshabilitado
+        }
     }
 
     void Update()
     {
-        
-        Debug.Log(cooldownTimeRemaining);
         if(isClimbing == true)
         {
             _inputVector = _inputActions.Player.ClimbWall.ReadValue<Vector2>();
@@ -68,22 +94,10 @@ public class PlayerController : MonoBehaviour
                 cooldownTimeRemaining -= Time.deltaTime;
             }
         }
-        /*switch (state)
+        if (isGrappling)
         {
-            case PlayerStates.Moving:
-                MovePlayer();
-                break;
-            case PlayerStates.Dashing:
-                PerformDash();
-                if (cooldownTimeRemaining > 0)
-                {
-                    cooldownTimeRemaining -= Time.deltaTime;
-                }
-                break;
-            case PlayerStates.Jumping:
-                PerformJump();
-                break;
-        }*/
+            MoveTowardsGrappleTarget();
+        }
     }
 
     private void Prepare()
@@ -93,6 +107,7 @@ public class PlayerController : MonoBehaviour
         _inputActions.Player.Jump.performed += JumpPlayer;
         _inputActions.Player.Dash.performed += DashPlayer;
         _inputActions.Player.GrabWall.performed += GrabWall;
+        _inputActions.Player.Grapple.performed += TryGrapple;
     }
 
     private void MovePlayer()
@@ -107,10 +122,11 @@ public class PlayerController : MonoBehaviour
                 ReleaseWall();
             }
 
-            return; 
+            return;
         }
 
-        var dir = new Vector3(_inputVector.x, 0, _inputVector.y);
+        // Dirección del movimiento basada en la entrada
+        Vector3 dir = new Vector3(_inputVector.x, 0, _inputVector.y);
         Vector3 move = transform.TransformDirection(dir) * _moveSpeed;
 
         if (_characterController.isGrounded)
@@ -119,12 +135,20 @@ public class PlayerController : MonoBehaviour
             {
                 verticalSpeed = -0.5f;
             }
+
+            // Permite volver al último punto de anclaje
+            if (lastAnchorPoint != null)
+            {
+                Debug.Log("Jugador grounded. Puedes volver a usar el último punto de anclaje.");
+                lastAnchorPoint = null; // Esto elimina la restricción
+            }
         }
         else
         {
             verticalSpeed -= _gravity * Time.deltaTime;
         }
 
+        // Combina el movimiento en los ejes XZ con la velocidad vertical
         move.y = verticalSpeed;
         _characterController.Move(move * Time.deltaTime);
     }
@@ -198,20 +222,103 @@ public class PlayerController : MonoBehaviour
 
     private void ClimbWall()
     {
-        if (!isClimbing) return; // Solo permitir escalada si está agarrado a una pared
+        if (!isClimbing) return; 
 
         float verticalInput = _inputVector.y;
 
-        // Movimiento vertical para escalar
         Vector3 climbMovement = new Vector3(0, verticalInput * climbSpeed, 0);
         _characterController.Move(climbMovement * Time.deltaTime);
 
-        // Si no hay input vertical, el jugador se queda en su lugar
         if (Mathf.Abs(verticalInput) < 0.1f)
         {
-            verticalSpeed = 0; // Detener cualquier movimiento vertical
+            verticalSpeed = 0; 
         }
 
         Debug.Log($"Escalando la pared: {verticalInput}");
+    }
+
+    void TryGrapple(InputAction.CallbackContext ctx)
+    {
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, grappleRange, anchorPointLayer);
+        if (hitColliders.Length > 0)
+        {
+            Transform closestPoint = hitColliders[0].transform;
+            float closestDistance = Vector3.Distance(transform.position, closestPoint.position);
+
+            foreach (Collider2D hit in hitColliders)
+            {
+                float distance = Vector3.Distance(transform.position, hit.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestPoint = hit.transform;
+                    closestDistance = distance;
+                }
+            }
+
+            if (lastAnchorPoint != closestPoint || _characterController.isGrounded)
+            {
+                grappleTarget = closestPoint.position;
+                isGrappling = true;
+                grappleTimeRemaining = grappleMaxDuration;
+                lastAnchorPoint = closestPoint;
+
+                // Habilita la línea visual
+                grappleLine.enabled = true;
+                UpdateGrappleLine(transform.position, grappleTarget);
+            }
+            else
+            {
+                Debug.Log("No puedes usar el gancho en el mismo punto sin estar grounded.");
+            }
+        }
+        else
+        {
+            Debug.Log("No hay puntos de anclaje en el rango.");
+        }
+    }
+
+    void MoveTowardsGrappleTarget()
+    {
+        if (grappleTimeRemaining <= 0)
+        {
+            EndGrapple();
+            return;
+        }
+
+        grappleTimeRemaining -= Time.deltaTime;
+
+        Vector3 direction = (grappleTarget - transform.position).normalized;
+        float distance = Vector3.Distance(transform.position, grappleTarget);
+
+        if (distance > 0.1f)
+        {
+            Vector3 move = direction * grappleSpeed * Time.deltaTime;
+            _characterController.Move(move);
+
+            // Actualiza la línea visual
+            UpdateGrappleLine(transform.position, grappleTarget);
+        }
+        else
+        {
+            EndGrapple();
+        }
+    }
+    void EndGrapple()
+    {
+        isGrappling = false;
+        grappleLine.enabled = false; // Deshabilita la línea
+        Debug.Log("Grapple finalizado.");
+    }
+
+    void UpdateGrappleLine(Vector3 start, Vector3 end)
+    {
+        grappleLine.SetPosition(0, start); // Punto inicial (jugador)
+        grappleLine.SetPosition(1, end);   // Punto final (anclaje)
+    }
+    void OnDrawGizmos()
+    {
+        // Dibuja el rango del gancho para facilitar el diseño
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, grappleRange);
     }
 }

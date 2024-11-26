@@ -71,6 +71,15 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Grapple"",
+                    ""type"": ""Button"",
+                    ""id"": ""6be3e7c9-7b46-47ac-8143-5ad0e0029f13"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -271,6 +280,28 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""ClimbWall"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2f5fe47d-1d45-4457-b305-5cd03e204616"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Grapple"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2ed154ed-98cf-4415-bf98-559493baccc1"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Grapple"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -284,6 +315,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         m_Player_GrabWall = m_Player.FindAction("GrabWall", throwIfNotFound: true);
         m_Player_ClimbWall = m_Player.FindAction("ClimbWall", throwIfNotFound: true);
+        m_Player_Grapple = m_Player.FindAction("Grapple", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -350,6 +382,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Dash;
     private readonly InputAction m_Player_GrabWall;
     private readonly InputAction m_Player_ClimbWall;
+    private readonly InputAction m_Player_Grapple;
     public struct PlayerActions
     {
         private @GameInputActions m_Wrapper;
@@ -359,6 +392,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         public InputAction @Dash => m_Wrapper.m_Player_Dash;
         public InputAction @GrabWall => m_Wrapper.m_Player_GrabWall;
         public InputAction @ClimbWall => m_Wrapper.m_Player_ClimbWall;
+        public InputAction @Grapple => m_Wrapper.m_Player_Grapple;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -383,6 +417,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @ClimbWall.started += instance.OnClimbWall;
             @ClimbWall.performed += instance.OnClimbWall;
             @ClimbWall.canceled += instance.OnClimbWall;
+            @Grapple.started += instance.OnGrapple;
+            @Grapple.performed += instance.OnGrapple;
+            @Grapple.canceled += instance.OnGrapple;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -402,6 +439,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @ClimbWall.started -= instance.OnClimbWall;
             @ClimbWall.performed -= instance.OnClimbWall;
             @ClimbWall.canceled -= instance.OnClimbWall;
+            @Grapple.started -= instance.OnGrapple;
+            @Grapple.performed -= instance.OnGrapple;
+            @Grapple.canceled -= instance.OnGrapple;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -426,5 +466,6 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         void OnDash(InputAction.CallbackContext context);
         void OnGrabWall(InputAction.CallbackContext context);
         void OnClimbWall(InputAction.CallbackContext context);
+        void OnGrapple(InputAction.CallbackContext context);
     }
 }
