@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 5368577452409635992}
   - component: {fileID: 4025667351220406841}
   - component: {fileID: 5118062623527380522}
-  - component: {fileID: 2507720699967340626}
   m_Layer: 0
   m_Name: calab3_0
   m_TagString: Enemy
@@ -132,24 +131,3 @@ MonoBehaviour:
   frontCheck: 0.51
   frontDist: 0.001
   scoreGive: 50
---- !u!65 &2507720699967340626
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8946551557511616169}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.32000002, y: 0.32, z: 0.2}
-  m_Center: {x: 0, y: 0, z: 0}
