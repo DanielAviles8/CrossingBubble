@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 466896051809321921}
   - component: {fileID: 1835876038136098244}
   - component: {fileID: 8291733843139595479}
+  - component: {fileID: -1497615974949364404}
+  - component: {fileID: -904574294210904107}
   m_Layer: 0
   m_Name: slime1_0
   m_TagString: Enemy
@@ -99,13 +101,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movHor: 0
   speed: 3
-  isGroundFloor: 1
-  isGroundFront: 0
   groundLayer:
     serializedVersion: 2
+    m_Bits: 128
+  frontGrndRayDist: 1
+  floorCheckY: 0.5
+  frontCheckDist: 1
+--- !u!65 &-1497615974949364404
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7162743202080164566}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
     m_Bits: 0
-  frontGrndRayDist: 0.25
-  floorCheckY: 0.52
-  frontCheck: 0.51
-  frontDist: 0.001
-  scoreGive: 50
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.31999996, y: 0.32, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &-904574294210904107
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7162743202080164566}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 120
+  m_CollisionDetection: 0

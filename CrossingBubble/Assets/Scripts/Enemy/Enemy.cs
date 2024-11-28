@@ -1,87 +1,65 @@
-using Unity.VisualScripting;
-using UnityEditor.ShaderKeywordFilter;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
     private Rigidbody rb;
 
-    public float movHor = 0f;
+    public float movHor = 1f; // Dirección inicial (1 = derecha, -1 = izquierda)
     public float speed = 3f;
 
-    public bool isGroundFloor = true;
-    public bool isGroundFront = false;
-
     public LayerMask groundLayer;
+
     public float frontGrndRayDist = 0.25f;
     public float floorCheckY = 0.52f;
-    public float frontCheck = 0.51f;
-    public float frontDist = 0.001f;
-
-    public int scoreGive = 50;
-
-    private RaycastHit2D hit;
+    public float frontCheckDist = 0.5f;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            Debug.LogError("No se encontró un Rigidbody en el enemigo.");
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        // Verificar si hay suelo delante para evitar caer
+        Vector3 floorCheckPosition = new Vector3(transform.position.x, transform.position.y - floorCheckY, transform.position.z);
+        bool isGroundFloor = Physics.Raycast(floorCheckPosition, Vector3.down, frontGrndRayDist, groundLayer);
 
-        //evitar caer en precipicio
-        isGroundFloor = (Physics2D.Raycast(new Vector3(transform.position.x, transform.position.y - floorCheckY, transform.position.z), new Vector3(movHor, 0, 0), frontGrndRayDist, groundLayer));
         if (!isGroundFloor)
-            movHor = movHor * -1;
-
-        // choque con pared
-        if (Physics2D.Raycast(transform.position, new Vector3(movHor, 0, 0), frontCheck, groundLayer))
-            movHor = movHor * -1;
-        // choque con otro enemigo
-        hit = (Physics2D.Raycast(new Vector3(transform.position.x + movHor * frontCheck, transform.position.y, transform.position.z), new Vector3(movHor, 0, 0), frontGrndRayDist));
-        
-        if (hit != null)
-            if (hit.transform != null)
-                if (hit.transform.CompareTag("Enemy"))
-                    movHor = movHor * 1;
-       
-        rb.velocity = new Vector2(movHor * speed, rb.velocity.y);
-    }
-
-    void FixUpdate()
-    {
-        rb.velocity = new Vector2(movHor * speed, rb.velocity.y);
-    }
-
-    void OnCollisionEnter2D(Collision2D collision)
-    //dañar a player
-    {
-        if (collision.gameObject.CompareTag("Player"))
         {
-
+            movHor *= -1; // Cambiar de dirección si no hay suelo
         }
 
-    }
-
-    void OnTriggerEnter2D(Collider2D collision)
-    {
-        //destruir enemigo
-        if (collision.gameObject.CompareTag("Player"))
+        // Verificar si hay una pared delante
+        Vector3 frontCheckPosition = new Vector3(transform.position.x + movHor * frontCheckDist, transform.position.y, transform.position.z);
+        if (Physics.Raycast(frontCheckPosition, Vector3.right * movHor, frontCheckDist, groundLayer))
         {
-           
-            getkilled();
+            movHor *= -1; // Cambiar de dirección si hay una pared
         }
 
-
+        // Actualizar velocidad
+        Vector3 velocity = new Vector3(movHor * speed, rb.velocity.y, rb.velocity.z);
+        rb.velocity = velocity;
     }
 
-
-    private void getkilled()
+    void OnDrawGizmos()
     {
-        gameObject.SetActive(false);
+        // Gizmos para visualizar los rayos
+        Gizmos.color = Color.red;
+
+        // Rayo para detectar suelo
+        Gizmos.DrawLine(
+            new Vector3(transform.position.x, transform.position.y - floorCheckY, transform.position.z),
+            new Vector3(transform.position.x, transform.position.y - floorCheckY - frontGrndRayDist, transform.position.z)
+        );
+
+        // Rayo para detectar pared
+        Gizmos.DrawLine(
+            new Vector3(transform.position.x + movHor * frontCheckDist, transform.position.y, transform.position.z),
+            new Vector3(transform.position.x + movHor * (frontCheckDist + frontGrndRayDist), transform.position.y, transform.position.z)
+        );
     }
 }
-

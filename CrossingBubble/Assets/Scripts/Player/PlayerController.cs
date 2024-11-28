@@ -125,7 +125,6 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Dirección del movimiento basada en la entrada
         Vector3 dir = new Vector3(_inputVector.x, 0, _inputVector.y);
         Vector3 move = transform.TransformDirection(dir) * _moveSpeed;
 
@@ -136,11 +135,9 @@ public class PlayerController : MonoBehaviour
                 verticalSpeed = -0.5f;
             }
 
-            // Permite volver al último punto de anclaje
             if (lastAnchorPoint != null)
             {
-                Debug.Log("Jugador grounded. Puedes volver a usar el último punto de anclaje.");
-                lastAnchorPoint = null; // Esto elimina la restricción
+                lastAnchorPoint = null;
             }
         }
         else
@@ -148,7 +145,6 @@ public class PlayerController : MonoBehaviour
             verticalSpeed -= _gravity * Time.deltaTime;
         }
 
-        // Combina el movimiento en los ejes XZ con la velocidad vertical
         move.y = verticalSpeed;
         _characterController.Move(move * Time.deltaTime);
     }
@@ -262,7 +258,6 @@ public class PlayerController : MonoBehaviour
                 grappleTimeRemaining = grappleMaxDuration;
                 lastAnchorPoint = closestPoint;
 
-                // Habilita la línea visual
                 grappleLine.enabled = true;
                 UpdateGrappleLine(transform.position, grappleTarget);
             }
@@ -295,7 +290,6 @@ public class PlayerController : MonoBehaviour
             Vector3 move = direction * grappleSpeed * Time.deltaTime;
             _characterController.Move(move);
 
-            // Actualiza la línea visual
             UpdateGrappleLine(transform.position, grappleTarget);
         }
         else
@@ -306,18 +300,17 @@ public class PlayerController : MonoBehaviour
     void EndGrapple()
     {
         isGrappling = false;
-        grappleLine.enabled = false; // Deshabilita la línea
+        grappleLine.enabled = false;
         Debug.Log("Grapple finalizado.");
     }
 
     void UpdateGrappleLine(Vector3 start, Vector3 end)
     {
-        grappleLine.SetPosition(0, start); // Punto inicial (jugador)
-        grappleLine.SetPosition(1, end);   // Punto final (anclaje)
+        grappleLine.SetPosition(0, start); 
+        grappleLine.SetPosition(1, end);   
     }
     void OnDrawGizmos()
     {
-        // Dibuja el rango del gancho para facilitar el diseño
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, grappleRange);
     }

@@ -8,7 +8,9 @@ public class TakeDamage : MonoBehaviour
     private float playerLives = 3;
     private float hitsTaken = 0;
 
-    public Vector3 CheckpointPosition;
+    public Vector3 CheckpointPosition; 
+    private bool isRespawning = false;  
+
     void Start()
     {
         alreadyHit = false;
@@ -16,33 +18,47 @@ public class TakeDamage : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(hitsTaken);
-        Debug.Log(alreadyHit);
+        Debug.Log(hitsTaken); 
+        Debug.Log(gameObject.transform.position);
     }
+
     public void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (alreadyHit) return;
+        if (isRespawning || alreadyHit) return;
 
         if (hit.gameObject.CompareTag("Enemy"))
         {
             hitsTaken += 1;
-            alreadyHit = true; 
+            alreadyHit = true;
             StartCoroutine(ResetHitStatus()); 
         }
-        if(hitsTaken >= 3)
+
+        if (hitsTaken >= 3)
         {
-            RespawnPlayer();
+            StartCoroutine(RespawnPlayer());  
         }
     }
 
     private IEnumerator ResetHitStatus()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f); 
         alreadyHit = false;
     }
-    public void RespawnPlayer()
+
+    private IEnumerator RespawnPlayer()
     {
-        gameObject.transform.position = CheckpointPosition;
-        hitsTaken = 0;   
+        if (CheckpointPosition == Vector3.zero)
+        {
+            Debug.LogError("CheckpointPosition no está configurado correctamente.");
+            yield break; 
+        }
+
+        isRespawning = true;  
+        gameObject.transform.position = CheckpointPosition;  
+        Debug.Log("Respawn");
+        hitsTaken = 0; 
+
+        yield return new WaitForSeconds(1f);
+        isRespawning = false; 
     }
 }
