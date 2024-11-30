@@ -42,8 +42,8 @@ public class PlayerController : MonoBehaviour
     private Vector3 grappleTarget;
     private bool isGrappling = false;
     private Transform lastAnchorPoint;
-    private float grappleTimeRemaining; // Tiempo restante para el grapple
-    [SerializeField] private float grappleMaxDuration = 2f; // Duración máxima del grapple
+    private float grappleTimeRemaining;
+    [SerializeField] private float grappleMaxDuration = 2f;
 
 
     private void OnDestroy()
@@ -57,16 +57,15 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         Prepare();
-        // Configurar el LineRenderer si no se ha hecho manualmente
         if (grappleLine == null)
         {
             GameObject lineObject = new GameObject("GrappleLine");
             grappleLine = lineObject.AddComponent<LineRenderer>();
-            grappleLine.material = grappleMaterial; // Asignar material
+            grappleLine.material = grappleMaterial; 
             grappleLine.startWidth = grappleLineWidth;
             grappleLine.endWidth = grappleLineWidth;
-            grappleLine.positionCount = 2; // La línea tendrá dos puntos
-            grappleLine.enabled = false;  // Inicialmente deshabilitado
+            grappleLine.positionCount = 2; 
+            grappleLine.enabled = false;  
         }
     }
 
