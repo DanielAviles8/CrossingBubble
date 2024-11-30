@@ -4,7 +4,7 @@ public class Enemy : MonoBehaviour
 {
     private Rigidbody rb;
 
-    public float movHor = 1f; // Dirección inicial (1 = derecha, -1 = izquierda)
+    public float movHor = 1f; 
     public float speed = 3f;
 
     public LayerMask groundLayer;
@@ -24,39 +24,33 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        // Verificar si hay suelo delante para evitar caer
         Vector3 floorCheckPosition = new Vector3(transform.position.x, transform.position.y - floorCheckY, transform.position.z);
         bool isGroundFloor = Physics.Raycast(floorCheckPosition, Vector3.down, frontGrndRayDist, groundLayer);
 
         if (!isGroundFloor)
         {
-            movHor *= -1; // Cambiar de dirección si no hay suelo
+            movHor *= -1; 
         }
 
-        // Verificar si hay una pared delante
         Vector3 frontCheckPosition = new Vector3(transform.position.x + movHor * frontCheckDist, transform.position.y, transform.position.z);
         if (Physics.Raycast(frontCheckPosition, Vector3.right * movHor, frontCheckDist, groundLayer))
         {
-            movHor *= -1; // Cambiar de dirección si hay una pared
+            movHor *= -1; 
         }
 
-        // Actualizar velocidad
         Vector3 velocity = new Vector3(movHor * speed, rb.velocity.y, rb.velocity.z);
         rb.velocity = velocity;
     }
 
     void OnDrawGizmos()
     {
-        // Gizmos para visualizar los rayos
         Gizmos.color = Color.red;
 
-        // Rayo para detectar suelo
         Gizmos.DrawLine(
             new Vector3(transform.position.x, transform.position.y - floorCheckY, transform.position.z),
             new Vector3(transform.position.x, transform.position.y - floorCheckY - frontGrndRayDist, transform.position.z)
         );
 
-        // Rayo para detectar pared
         Gizmos.DrawLine(
             new Vector3(transform.position.x + movHor * frontCheckDist, transform.position.y, transform.position.z),
             new Vector3(transform.position.x + movHor * (frontCheckDist + frontGrndRayDist), transform.position.y, transform.position.z)

@@ -4,22 +4,27 @@ using UnityEngine;
 
 public class TakeDamage : MonoBehaviour
 {
+    private CharacterController _characterController;
+
     private bool alreadyHit;
     private float playerLives = 3;
     private float hitsTaken = 0;
 
-    public Vector3 CheckpointPosition; 
+    public Transform firstCheckpoint;
+    public Vector3 CheckpointPosition;
+    public Vector3 LastCheckpoint;
     private bool isRespawning = false;  
 
     void Start()
     {
+        CheckpointPosition = firstCheckpoint.position;
+        _characterController = GetComponent<CharacterController>();
         alreadyHit = false;
     }
 
     void Update()
     {
-        Debug.Log(hitsTaken); 
-        Debug.Log(gameObject.transform.position);
+        Debug.Log(CheckpointPosition.ToString());
     }
 
     public void OnControllerColliderHit(ControllerColliderHit hit)
@@ -32,13 +37,22 @@ public class TakeDamage : MonoBehaviour
             alreadyHit = true;
             StartCoroutine(ResetHitStatus()); 
         }
-
         if (hitsTaken >= 3)
         {
             StartCoroutine(RespawnPlayer());  
         }
-    }
 
+        if (hit.gameObject.CompareTag("Checkpoint"))
+        {
+            LastCheckpoint = hit.gameObject.transform.position;
+            hit.gameObject.GetComponent<BoxCollider>().enabled = false;
+            UpdateCheckpoint();
+        }
+    }
+    public void UpdateCheckpoint()
+    {
+        CheckpointPosition = LastCheckpoint;
+    }
     private IEnumerator ResetHitStatus()
     {
         yield return new WaitForSeconds(0.5f); 
@@ -47,18 +61,14 @@ public class TakeDamage : MonoBehaviour
 
     private IEnumerator RespawnPlayer()
     {
-        if (CheckpointPosition == Vector3.zero)
-        {
-            Debug.LogError("CheckpointPosition no está configurado correctamente.");
-            yield break; 
-        }
-
-        isRespawning = true;  
+        isRespawning = true;
+        _characterController.enabled = false;
         gameObject.transform.position = CheckpointPosition;  
         Debug.Log("Respawn");
         hitsTaken = 0; 
 
         yield return new WaitForSeconds(1f);
         isRespawning = false; 
+        _characterController.enabled = true;
     }
 }
