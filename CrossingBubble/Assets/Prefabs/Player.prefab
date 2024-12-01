@@ -162,6 +162,7 @@ MonoBehaviour:
   firstCheckpoint: {fileID: 0}
   CheckpointPosition: {x: 7, y: -1, z: 0}
   LastCheckpoint: {x: 0, y: 0, z: 0}
+<<<<<<< HEAD
 --- !u!95 &5891496836809457772
 Animator:
   serializedVersion: 5
@@ -183,3 +184,5 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+=======
+>>>>>>> origin/main
