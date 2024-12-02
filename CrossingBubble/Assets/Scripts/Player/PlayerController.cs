@@ -99,9 +99,18 @@ public class PlayerController : MonoBehaviour
                 cooldownTimeRemaining -= Time.deltaTime;
             }
         }
+
+        animator.SetBool("IsRunning", _characterController.velocity.magnitude > 1f);
+        animator.SetBool("IsJumping", !_characterController.isGrounded);
+
         if (isGrappling)
         {
             MoveTowardsGrappleTarget();
+        }
+
+        if(isDashing == false)
+        {
+            animator.SetBool("IsDashing", false);
         }
     }
 
@@ -151,16 +160,7 @@ public class PlayerController : MonoBehaviour
         }
 
         move.y = verticalSpeed;
-        _characterController.Move(move * Time.deltaTime);
-
-        /*if(isClimbing == false || isDashing == false || isJumping == false) 
-        {
-            isMoving = true;
-        }
-        else
-        {
-            isMoving = false;
-        }*/
+        _characterController.Move(move * Time.deltaTime);  
     }
     private void JumpPlayer(InputAction.CallbackContext ctx)
     {
@@ -168,14 +168,17 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetBool("IsJumping", true);
             ReleaseWall(); 
-            verticalSpeed = jumpForce; 
-
+            _gravity = 4;
+            verticalSpeed = jumpForce;
+            _gravity = 20f;
         }
         else if (_characterController.isGrounded)
         {
             animator.SetBool("IsJumping", true);
             isJumping = true;
+            _gravity = 4;
             verticalSpeed = jumpForce;
+            _gravity = 20f;
         }
     }
     private void DashPlayer(InputAction.CallbackContext ctx)
@@ -215,6 +218,7 @@ public class PlayerController : MonoBehaviour
 
         if (Physics.Raycast(rayOrigin, direction, out RaycastHit hit, wallDetectionDistance, wallLayer))
         {
+            Debug.Log("Tocando pared");
             isTouchingWall = true;
             isClimbing = true;
             verticalSpeed = 0; 
@@ -226,7 +230,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("No se detectó pared");
         }
 
-        Debug.DrawRay(rayOrigin, direction * wallDetectionDistance, Color.red, 1.0f);
+        Debug.DrawRay(rayOrigin, direction * wallDetectionDistance, Color.yellow, 5.0f);
     }
 
     private void ReleaseWall()
@@ -296,6 +300,7 @@ public class PlayerController : MonoBehaviour
     {
         if (grappleTimeRemaining <= 0)
         {
+            _gravity = 20;
             EndGrapple();
             return;
         }
@@ -307,6 +312,7 @@ public class PlayerController : MonoBehaviour
 
         if (distance > 0.1f)
         {
+            _gravity = 0;
             Vector3 move = direction * grappleSpeed * Time.deltaTime;
             _characterController.Move(move);
 
@@ -334,7 +340,4 @@ public class PlayerController : MonoBehaviour
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, grappleRange);
     }
-   
-        
-  
 }
