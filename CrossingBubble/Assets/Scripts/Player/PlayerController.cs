@@ -28,9 +28,7 @@ public class PlayerController : MonoBehaviour
     private float verticalSpeed;
     private Vector2 _inputVector;
     private Vector2 dashDirection;
-    private bool isDashing = false;
     private bool isTouchingWall = false;
-    private bool isClimbing = false; 
     private float dashTimeRemaining = 0f;
     private float cooldownTimeRemaining = 0f;
 
@@ -45,6 +43,13 @@ public class PlayerController : MonoBehaviour
     private float grappleTimeRemaining;
     [SerializeField] private float grappleMaxDuration = 2f;
 
+    //Buleanos para animaciones
+    private bool isClimbing = false; 
+    private bool isDashing = false;
+    private bool isJumping = false;
+    private bool isMoving = false;
+
+    private Animator animator;
 
     private void OnDestroy()
     {
@@ -59,6 +64,7 @@ public class PlayerController : MonoBehaviour
         Prepare();
         if (grappleLine == null)
         {
+            animator = gameObject.GetComponent<Animator>();
             GameObject lineObject = new GameObject("GrappleLine");
             grappleLine = lineObject.AddComponent<LineRenderer>();
             grappleLine.material = grappleMaterial; 
@@ -93,9 +99,18 @@ public class PlayerController : MonoBehaviour
                 cooldownTimeRemaining -= Time.deltaTime;
             }
         }
+
+        animator.SetBool("IsRunning", _characterController.velocity.magnitude > 1f);
+        animator.SetBool("IsJumping", !_characterController.isGrounded);
+
         if (isGrappling)
         {
             MoveTowardsGrappleTarget();
+        }
+
+        if(isDashing == false)
+        {
+            animator.SetBool("IsDashing", false);
         }
     }
 
@@ -145,18 +160,25 @@ public class PlayerController : MonoBehaviour
         }
 
         move.y = verticalSpeed;
-        _characterController.Move(move * Time.deltaTime);
+        _characterController.Move(move * Time.deltaTime);  
     }
     private void JumpPlayer(InputAction.CallbackContext ctx)
     {
         if (isClimbing)
         {
+            animator.SetBool("IsJumping", true);
             ReleaseWall(); 
-            verticalSpeed = jumpForce; 
+            _gravity = 4;
+            verticalSpeed = jumpForce;
+            _gravity = 20f;
         }
         else if (_characterController.isGrounded)
         {
+            animator.SetBool("IsJumping", true);
+            isJumping = true;
+            _gravity = 4;
             verticalSpeed = jumpForce;
+            _gravity = 20f;
         }
     }
     private void DashPlayer(InputAction.CallbackContext ctx)
@@ -168,6 +190,8 @@ public class PlayerController : MonoBehaviour
         if (dashDirection == Vector2.zero) return;
 
         isDashing = true;
+        animator.SetBool("IsJumping", false);
+        animator.SetBool("IsDashing", true);
         dashTimeRemaining = dashDistance / dashSpeed;
         cooldownTimeRemaining = dashCooldown;
     }
@@ -194,6 +218,7 @@ public class PlayerController : MonoBehaviour
 
         if (Physics.Raycast(rayOrigin, direction, out RaycastHit hit, wallDetectionDistance, wallLayer))
         {
+            Debug.Log("Tocando pared");
             isTouchingWall = true;
             isClimbing = true;
             verticalSpeed = 0; 
@@ -205,7 +230,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("No se detectó pared");
         }
 
-        Debug.DrawRay(rayOrigin, direction * wallDetectionDistance, Color.red, 1.0f);
+        Debug.DrawRay(rayOrigin, direction * wallDetectionDistance, Color.yellow, 5.0f);
     }
 
     private void ReleaseWall()
@@ -275,6 +300,7 @@ public class PlayerController : MonoBehaviour
     {
         if (grappleTimeRemaining <= 0)
         {
+            _gravity = 20;
             EndGrapple();
             return;
         }
@@ -286,6 +312,7 @@ public class PlayerController : MonoBehaviour
 
         if (distance > 0.1f)
         {
+            _gravity = 0;
             Vector3 move = direction * grappleSpeed * Time.deltaTime;
             _characterController.Move(move);
 
