@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
 
     private GameInputActions _inputActions;
     private CharacterController _characterController;
+    private SpriteRenderer _spriteRenderer;
 
     public float jumpForce = 15.0f;
     private float verticalSpeed;
@@ -67,6 +68,7 @@ public class PlayerController : MonoBehaviour
             animator = gameObject.GetComponent<Animator>();
             GameObject lineObject = new GameObject("GrappleLine");
             grappleLine = lineObject.AddComponent<LineRenderer>();
+            _spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
             grappleLine.material = grappleMaterial; 
             grappleLine.startWidth = grappleLineWidth;
             grappleLine.endWidth = grappleLineWidth;
@@ -77,6 +79,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+
         if(isClimbing == true)
         {
             _inputVector = _inputActions.Player.ClimbWall.ReadValue<Vector2>();
@@ -101,7 +104,8 @@ public class PlayerController : MonoBehaviour
         }
 
         animator.SetBool("IsRunning", _characterController.velocity.magnitude > 1f);
-        animator.SetBool("IsJumping", !_characterController.isGrounded);
+        animator.SetBool("IsJumping", !_characterController.isGrounded && !isDashing);
+        animator.SetBool("IsClimbing", isClimbing);
 
         if (isGrappling)
         {
@@ -112,6 +116,9 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetBool("IsDashing", false);
         }
+
+        Vector3 lockZ = new Vector3(transform.position.x, transform.position.y, 0);
+        transform.position = lockZ;
     }
 
     private void Prepare()
@@ -141,6 +148,15 @@ public class PlayerController : MonoBehaviour
 
         Vector3 dir = new Vector3(_inputVector.x, 0, _inputVector.y);
         Vector3 move = transform.TransformDirection(dir) * _moveSpeed;
+
+        if (_inputVector.x < 0)
+        {
+            _spriteRenderer.flipX = true;
+        }
+        else if (_inputVector.x > 0)
+        {
+            _spriteRenderer.flipX = false;
+        }
 
         if (_characterController.isGrounded)
         {

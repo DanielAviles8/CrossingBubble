@@ -76,7 +76,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 50
   m_Sprite: {fileID: 1108340939, guid: a98933172c796244682f91a864eafccc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -113,7 +113,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: -0.12, z: 0}
 --- !u!114 &5294695489596367068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,7 +133,7 @@ MonoBehaviour:
   dashDistance: 5
   dashCooldown: 1
   climbSpeed: 5
-  wallDetectionDistance: 1.5
+  wallDetectionDistance: 0.8
   grappleRange: 10
   grappleSpeed: 10
   grappleLine: {fileID: 0}
@@ -146,7 +146,7 @@ MonoBehaviour:
   anchorPointLayer:
     serializedVersion: 2
     m_Bits: 64
-  grappleMaxDuration: 2
+  grappleMaxDuration: 0.5
 --- !u!114 &5742977939321974061
 MonoBehaviour:
   m_ObjectHideFlags: 0

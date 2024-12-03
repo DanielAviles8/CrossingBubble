@@ -80,6 +80,15 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MoveCameraDown"",
+                    ""type"": ""Value"",
+                    ""id"": ""4b0411e9-43ae-41a8-8756-390445a8dda7"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -302,6 +311,28 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Grapple"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""20716a06-686e-4102-b4ff-19a44ad1e7c7"",
+                    ""path"": ""<Keyboard>/m"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCameraDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d8c50c59-803c-47de-9337-b2511fdad408"",
+                    ""path"": ""<Gamepad>/rightStick/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCameraDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -316,6 +347,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         m_Player_GrabWall = m_Player.FindAction("GrabWall", throwIfNotFound: true);
         m_Player_ClimbWall = m_Player.FindAction("ClimbWall", throwIfNotFound: true);
         m_Player_Grapple = m_Player.FindAction("Grapple", throwIfNotFound: true);
+        m_Player_MoveCameraDown = m_Player.FindAction("MoveCameraDown", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -383,6 +415,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_GrabWall;
     private readonly InputAction m_Player_ClimbWall;
     private readonly InputAction m_Player_Grapple;
+    private readonly InputAction m_Player_MoveCameraDown;
     public struct PlayerActions
     {
         private @GameInputActions m_Wrapper;
@@ -393,6 +426,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         public InputAction @GrabWall => m_Wrapper.m_Player_GrabWall;
         public InputAction @ClimbWall => m_Wrapper.m_Player_ClimbWall;
         public InputAction @Grapple => m_Wrapper.m_Player_Grapple;
+        public InputAction @MoveCameraDown => m_Wrapper.m_Player_MoveCameraDown;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -420,6 +454,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @Grapple.started += instance.OnGrapple;
             @Grapple.performed += instance.OnGrapple;
             @Grapple.canceled += instance.OnGrapple;
+            @MoveCameraDown.started += instance.OnMoveCameraDown;
+            @MoveCameraDown.performed += instance.OnMoveCameraDown;
+            @MoveCameraDown.canceled += instance.OnMoveCameraDown;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -442,6 +479,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @Grapple.started -= instance.OnGrapple;
             @Grapple.performed -= instance.OnGrapple;
             @Grapple.canceled -= instance.OnGrapple;
+            @MoveCameraDown.started -= instance.OnMoveCameraDown;
+            @MoveCameraDown.performed -= instance.OnMoveCameraDown;
+            @MoveCameraDown.canceled -= instance.OnMoveCameraDown;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -467,5 +507,6 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         void OnGrabWall(InputAction.CallbackContext context);
         void OnClimbWall(InputAction.CallbackContext context);
         void OnGrapple(InputAction.CallbackContext context);
+        void OnMoveCameraDown(InputAction.CallbackContext context);
     }
 }
