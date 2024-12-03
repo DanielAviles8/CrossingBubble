@@ -103,9 +103,10 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        animator.SetBool("IsRunning", _characterController.velocity.magnitude > 1f);
+        animator.SetBool("IsRunning", _characterController.velocity.magnitude > 1f && !isDashing);
         animator.SetBool("IsJumping", !_characterController.isGrounded && !isDashing);
         animator.SetBool("IsClimbing", isClimbing);
+        animator.SetBool("IsDashing", isDashing);
 
         if (isGrappling)
         {
@@ -206,8 +207,7 @@ public class PlayerController : MonoBehaviour
         if (dashDirection == Vector2.zero) return;
 
         isDashing = true;
-        animator.SetBool("IsJumping", false);
-        animator.SetBool("IsDashing", true);
+        
         dashTimeRemaining = dashDistance / dashSpeed;
         cooldownTimeRemaining = dashCooldown;
     }

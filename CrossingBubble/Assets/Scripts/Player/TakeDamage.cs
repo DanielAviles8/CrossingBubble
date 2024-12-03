@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TakeDamage : MonoBehaviour
 {
@@ -13,7 +14,10 @@ public class TakeDamage : MonoBehaviour
     public Transform firstCheckpoint;
     public Vector3 CheckpointPosition;
     public Vector3 LastCheckpoint;
-    private bool isRespawning = false;  
+    private bool isRespawning = false;
+
+    public Transform Check1;
+    public Transform Check2;
 
     void Start()
     {
@@ -47,6 +51,16 @@ public class TakeDamage : MonoBehaviour
             LastCheckpoint = hit.gameObject.transform.position;
             hit.gameObject.GetComponent<BoxCollider>().enabled = false;
             UpdateCheckpoint();
+        }
+        if (hit.gameObject.CompareTag("Check1"))
+        {
+            _characterController.enabled = false;
+            gameObject.transform.position = Check1.position;
+            _characterController.enabled = true;
+        }
+        if (hit.gameObject.CompareTag("EndGame"))
+        {
+            SceneManager.LoadScene("Credits");
         }
     }
     public void UpdateCheckpoint()

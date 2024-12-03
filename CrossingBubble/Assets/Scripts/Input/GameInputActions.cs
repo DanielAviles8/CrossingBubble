@@ -204,6 +204,17 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""d063ac54-c02b-4bb6-9896-08b24ff8d403"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""5dc81b25-41f3-4756-b005-c777637f7bfa"",
                     ""path"": ""<Keyboard>/#(E)"",
                     ""interactions"": """",
